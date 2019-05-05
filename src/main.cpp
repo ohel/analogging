@@ -90,15 +90,52 @@ void setupWifi() {
 
 }
 
+// Deep-sleep for specified amount of hours, one hour at a time.
+// If powered on (not a deep-sleep reset), nothing will happen.
+// Call this twice: in the beginning of setup and at the end of setup.
+void deepSleepCycle(uint32_t hours, bool end_of_setup = false) {
+
+    uint32_t reset_counter = 0;
+
+    if (!end_of_setup) {
+        if (ESP.getResetReason() == "Deep-Sleep Wake") {
+            Serial.print("Waking up from deep-sleep via reset pin. Reset counter: ");
+            ESP.rtcUserMemoryRead(0, &reset_counter, sizeof(reset_counter));
+            reset_counter++;
+            ESP.rtcUserMemoryWrite(0, &reset_counter, sizeof(reset_counter));
+            Serial.println(reset_counter);
+        } else {
+            Serial.println("Zeroing reset counter.");
+            ESP.rtcUserMemoryWrite(0, &reset_counter, sizeof(reset_counter));
+            return;
+        }
+    }
+
+    // Sleep one hour at a time.
+    // The deep sleep is unrealiable with larger values.
+    if (reset_counter < hours) {
+        Serial.println("Going to deep-sleep for 1 hour.");
+        ESP.deepSleep(3600*1e6);
+    }
+    reset_counter = 0;
+    ESP.rtcUserMemoryWrite(0, &reset_counter, sizeof(reset_counter));
+
+}
+
 void setup() {
 
+    Serial.begin(115200);
+
+    deepSleepCycle(12);
+
+    // For debugging and info.
     pinMode(LED_BUILTIN, OUTPUT);
     digitalWrite(LED_BUILTIN, _PIN_LEVEL_ON);
 
-    Serial.begin(115200);
     setupWifi();
 
     Serial.println("Connecting to: " + String(_APIURL));
+    _CLIENT.setTimeout(10000);
     _CLIENT.begin(_APIURL);
 
     int responseCode = _CLIENT.POST("{\"value\":\"" + getAnalogValue() + "\"}");
@@ -111,15 +148,18 @@ void setup() {
 
     _CLIENT.end();
 
+    // For debugging and info.
     digitalWrite(LED_BUILTIN, _PIN_LEVEL_ON == HIGH ? LOW : HIGH);
-    Serial.println("Entering deep sleep for maximum time.");
-    ESP.deepSleep(ESP.deepSleepMax());
 
+    deepSleepCycle(12, true);
+
+    // For debugging, unreachable code with deep-sleep.
     _SERVER.begin();
     Serial.println("Server is running.");
 
 }
 
+// For debugging, unreachable code with deep-sleep.
 void loop() {
 
     _SERVER.handleClient();
