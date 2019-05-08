@@ -25,5 +25,11 @@ echo ${wifi_pass:-"password"} | sed "s/\(.*\)/const char* _WIFI_PASSWORD = \"\0\
 echo ${wifi_ip:-"0.0.0.0"} | sed "s/\./, /g" | sed "s/\(.*\)/IPAddress _WIFI_IP(\0);/" >> $wifi_cfg_out
 echo ${wifi_ip:-"0.0.0.0"} | sed "s/\./, /g" | sed "s/[0-9]\{1,\}$/1/" | sed "s/\(.*\)/IPAddress _WIFI_GATEWAY(\0);/" >> $wifi_cfg_out
 
+buildenv=""
+[ "$1" == "debug" ] && buildenv="--environment d1_mini_debug"
+
+uploadport=""
 port=$(pio device list | grep -B 2 "VID:PID=$piodev" | head -n 1)
-pio run -t upload --upload-port $port
+[ "$port" ] && uploadport="-t upload --upload-port $port"
+
+pio run $uploadport $buildenv
