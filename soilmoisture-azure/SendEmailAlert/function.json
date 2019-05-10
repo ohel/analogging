@@ -1,0 +1,16 @@
+{
+  "bindings": [
+    {
+      "type": "sendGrid",
+      "name": "$return",
+      "direction": "out",
+      "apiKey": "SendGridAPIKey",
+      "from": "Kultaköynnös <noreply@azure.com>"
+    },
+    {
+      "type": "eventGridTrigger",
+      "name": "EventGridTrigger",
+      "direction": "in"
+    }
+  ]
+}
