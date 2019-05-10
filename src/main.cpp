@@ -84,7 +84,7 @@ void setupWifi() {
     WiFi.begin(_WIFI_SSID, _WIFI_PASSWORD);
     int timeout = 0;
     printDebug("Connecting to: " + String(_WIFI_SSID));
-    while (WiFi.status() != WL_CONNECTED && timeout < 10) {
+    while (WiFi.status() != WL_CONNECTED && timeout < 60) {
         delay(1000);
         printDebugNoNewLine(".");
         timeout++;
@@ -166,7 +166,7 @@ void setup() {
     setupWifi();
 
     printDebug("Connecting to: " + String(_APIURL));
-    _CLIENT.setTimeout(10000);
+    _CLIENT.setTimeout(60000);
     _CLIENT.begin(_APIURL);
 
     int responseCode = _CLIENT.POST("{\"value\":\"" + getAnalogValue() + "\"}");
