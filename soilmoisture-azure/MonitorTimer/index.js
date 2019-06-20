@@ -31,7 +31,9 @@ module.exports = async function (context, timer) {
         "subject": "Kasvista ei kuulu mitään", // The plant is not reporting.
         "eventTime": new Date().toISOString(),
         "data": {
-            "message": "Edellisestä huonekasvin mullan kapasitanssimittauksesta on yli " + timestampDeltaHoursLimit + " tuntia: " + timestamp
+            "message": "Edellisestä huonekasvin mullan kapasitanssimittauksesta on yli "
+            + timestampDeltaHoursLimit + " tuntia: " + timestamp
+            + "\nViimeisin mitattu arvo: " + (latestRow && latestRow.Value || "?")
         }
     }]);
 
