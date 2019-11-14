@@ -10,9 +10,9 @@
 
 // On D1 boards the integrated LED is inverted (on when pin is LOW).
 #ifdef ESP8266_WEMOS_D1MINI
-    static const int _PIN_LEVEL_ON = LOW;
+    static const int _LED_PIN_LEVEL_ON = LOW;
 #else
-    static const int _PIN_LEVEL_ON = HIGH;
+    static const int _LED_PIN_LEVEL_ON = HIGH;
 #endif
 
 #ifdef DEBUG
@@ -161,7 +161,11 @@ void setup() {
 
     // For debugging and info.
     pinMode(LED_BUILTIN, OUTPUT);
-    digitalWrite(LED_BUILTIN, _PIN_LEVEL_ON);
+    digitalWrite(LED_BUILTIN, _LED_PIN_LEVEL_ON);
+
+    // Power on the soil moisture sensor.
+    pinMode(D8, OUTPUT);
+    digitalWrite(D8, HIGH);
 
     setupWifi();
 
@@ -180,7 +184,10 @@ void setup() {
     _CLIENT.end();
 
     // For debugging and info.
-    digitalWrite(LED_BUILTIN, _PIN_LEVEL_ON == HIGH ? LOW : HIGH);
+    digitalWrite(LED_BUILTIN, _LED_PIN_LEVEL_ON == HIGH ? LOW : HIGH);
+
+    // Power off the soil moisture sensor.
+    digitalWrite(D8, LOW);
 
     deepSleepCycle(12, true);
 
