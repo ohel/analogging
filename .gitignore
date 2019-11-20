@@ -1,4 +1,4 @@
-.pioenvs
+.pio
 src/apiurl.h
 src/wificonfig.h
 web/*.cfg

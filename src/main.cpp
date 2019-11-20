@@ -48,6 +48,10 @@
     ESP8266WebServer _SERVER(80);
 #endif
 
+// Sensor is connected to GPIO5 (D1 on a D1 board).
+// The Capacitive Soil Moisture Sensor V1.2 takes about 5mA of power and therefore can be powered via GPIO.
+static const int _SENSOR_PIN = 5;
+
 HTTPClient _CLIENT;
 
 String getAnalogValue() {
@@ -146,6 +150,12 @@ void deepSleepCycle(uint32_t hours, bool end_of_setup = false) {
         // 2: WAKE_NO_RFCAL
         // 4: WAKE_RF_DISABLED
         printDebug("Radio mode will be: " + String(wake_mode));
+
+#ifdef DEBUG
+        // Give some time to print debug messages to monitor before going to sleep.
+        delay(100);
+#endif
+
         ESP.deepSleep(3600*1e6, wake_mode);
     }
     reset_counter = 0;
@@ -164,8 +174,8 @@ void setup() {
     digitalWrite(LED_BUILTIN, _LED_PIN_LEVEL_ON);
 
     // Power on the soil moisture sensor.
-    pinMode(D8, OUTPUT);
-    digitalWrite(D8, HIGH);
+    pinMode(_SENSOR_PIN, OUTPUT);
+    digitalWrite(_SENSOR_PIN, HIGH);
 
     setupWifi();
 
@@ -187,7 +197,7 @@ void setup() {
     digitalWrite(LED_BUILTIN, _LED_PIN_LEVEL_ON == HIGH ? LOW : HIGH);
 
     // Power off the soil moisture sensor.
-    digitalWrite(D8, LOW);
+    digitalWrite(_SENSOR_PIN, LOW);
 
     deepSleepCycle(12, true);
 
