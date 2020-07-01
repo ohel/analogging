@@ -40,7 +40,12 @@ function getLocalizedTimeString(timezoneHourDiff) {
 
 function alertIfDry(value, logger) {
     return new Promise((resolve, reject) => {
-        if (value < 600) {
+
+        // This determines whether to send email or not.
+        // Usually the upper limit is around 480-600 depending on soil, sensor age and battery level.
+        const capacitance_limit = 480;
+
+        if (value < capacitance_limit) {
             return resolve();
         }
         logger("Value is too high, sending alert.");

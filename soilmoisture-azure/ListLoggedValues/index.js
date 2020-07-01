@@ -17,31 +17,38 @@ function latestFirst(a, b) {
 
 function valueToMoisture(logItem) {
     /*
-    The values from the Capacitive Soil Moisture Sensor v1.2 are roughly as follows:
+    The values from the Capacitive Soil Moisture Sensor v1.2 are roughly as follows when brand new:
         730: dry air
         630: very dry soil
         330: very wet soil (just watered)
         0-1: no sensor connected
 
-    Therefore we consider 630..330 to be the usable scale.
+    After a year in use, the values have dropped to:
+        600: dry air
+        500: very dry soil
+        200: water
+
+    The soil also affects the values. With the original soil values between 330-630 were good.
+    After changing to new soil the values usually fall between 290-480.
     */
-    logItem["moisturePercent"] = Math.round(Math.max(0, Math.min(300, (630 - logItem.value))) / 3);
+
+    logItem["moisturePercent"] = Math.round(Math.max(0, Math.min(300, (500 - logItem.value))) / 3);
 
     const status = "moistureStatus";
     if (logItem.value < 10) {
         logItem[status] = "N/A: No sensor connected";
-    } else if (logItem.value < 300) {
+    } else if (logItem.value < 200) {
         logItem[status] = "N/A: Test value";
-    } else if (logItem.value > 700) {
+    } else if (logItem.value >= 600) {
         logItem[status] = "N/A: Not in soil";
-    } else if (logItem.value < 400) {
+    } else if (logItem.value < 300) {
         logItem[status] = "Moist";
-    } else if (logItem.value < 580) {
+    } else if (logItem.value < 400) {
         logItem[status] = "OK";
-    } else if (logItem.value < 600) {
+    } else if (logItem.value < 500) {
         logItem[status] = "Dry";
     } else {
-        // Sent notification when this is logged.
+        // Sent notification at least when this is logged if not earlier.
         logItem[status] = "Very dry";
     }
     return logItem;
