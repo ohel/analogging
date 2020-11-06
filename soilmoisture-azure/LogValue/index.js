@@ -2,10 +2,10 @@ module.exports = async function (context, req) {
     if (req.query.value || (req.body && req.body.value)) {
         context.bindings.moistureValues = [];
 
-        // Finland in the summer: UTC+3
+        // Finland: UTC+2 (+3 during summer)
         const timestamp = req.query.timestamp ||
             (req.body && req.body.timestamp) ||
-            getLocalizedTimeString(3);
+            getLocalizedTimeString(2);
 
         context.bindings.moistureValues.push({
             PartitionKey: "LogValue",
@@ -42,8 +42,12 @@ function alertIfDry(value, logger) {
     return new Promise((resolve, reject) => {
 
         // This determines whether to send email or not.
-        // Usually the upper limit is around 480-600 depending on soil, sensor age and battery level.
-        const capacitance_limit = 480;
+        // Usually the upper limit is around 480-600 depending on soil, battery level and possibly even sensor wear.
+        // For new soil, which isn't that tightly packed, 480-500 is a good value.
+        // For a soil that's been used for a few months, 580-600 is good.
+        // When batteries start to run out, the values go down, eventually staying below 450.
+        // The rate at which the capacitance value should grow is usually around 12-25 every 24 hours with non-extreme moisture values.
+        const capacitance_limit = process.env["CapacitanceLimit"] || 600
 
         if (value < capacitance_limit) {
             return resolve();

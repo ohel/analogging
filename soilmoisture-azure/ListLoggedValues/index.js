@@ -17,36 +17,37 @@ function latestFirst(a, b) {
 
 function valueToMoisture(logItem) {
     /*
-    The values from the Capacitive Soil Moisture Sensor v1.2 are roughly as follows when brand new:
+    The values from the Capacitive Soil Moisture Sensor v1.2 are roughly as follows when the soil is old (tightly packed), batteries are fresh and the sensor is new:
         730: dry air
         630: very dry soil
         330: very wet soil (just watered)
         0-1: no sensor connected
 
-    After a year in use, the values have dropped to:
+    When batteries start to wear out, the values go down, eventually staying below 450.
+    With a new soil that isn't very tightly packed, the values are lower also, around the following:
         600: dry air
         500: very dry soil
-        200: water
 
-    The soil also affects the values. With the original soil values between 330-630 were good.
-    After changing to new soil the values usually fall between 290-480.
+    Hence with an old soil values between 330-630 are good.
+    With a fresh soil values between 300-500 are good.
     */
 
-    logItem["moisturePercent"] = Math.round(Math.max(0, Math.min(300, (500 - logItem.value))) / 3);
+    // For lower limit 300 seems to be a good enough estimate regardless of soil.
+    const capacitance_limit = process.env["CapacitanceLimit"] || 600
+    const moisture_percent = Math.round(Math.max(0, Math.min(300, (capacitance_limit - logItem.value))) / 3);
+    logItem["moisturePercent"] = moisture_percent;
 
     const status = "moistureStatus";
     if (logItem.value < 10) {
         logItem[status] = "N/A: No sensor connected";
     } else if (logItem.value < 200) {
         logItem[status] = "N/A: Test value";
-    } else if (logItem.value >= 600) {
+    } else if (logItem.value > 620) {
         logItem[status] = "N/A: Not in soil";
     } else if (logItem.value < 300) {
-        logItem[status] = "Moist";
-    } else if (logItem.value < 400) {
+        logItem[status] = "Watery";
+    } else if (moisture_percent > 10) {
         logItem[status] = "OK";
-    } else if (logItem.value < 500) {
-        logItem[status] = "Dry";
     } else {
         // Sent notification at least when this is logged if not earlier.
         logItem[status] = "Very dry";
