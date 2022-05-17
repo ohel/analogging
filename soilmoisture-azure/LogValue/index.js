@@ -45,22 +45,26 @@ function alertIfDry(value, logger) {
         // Usually the upper limit is around 480-600 depending on soil, battery level and possibly even sensor wear.
         // For new soil, which isn't that tightly packed, 480-500 is a good value.
         // For a soil that's been used for a few months, 580-600 is good.
-        // When batteries start to run out, the values go down, eventually staying below 450.
+        // When batteries start to run out, the values go down, eventually staying below 450. If soil is wet and batteries are low, sub 280 values are seen.
         // The rate at which the capacitance value should grow is usually around 12-25 every 24 hours with non-extreme moisture values.
         const capacitance_limit = process.env["CapacitanceLimit"] || 600
+        const lower_limit = 280
 
-        if (value < capacitance_limit) {
+        if (value < capacitance_limit && value > lower_limit) {
             return resolve();
         }
-        logger("Value is too high, sending alert.");
+        logger("Value is too high or low, sending alert.");
+
+        const msg = ((value < lower_limit) ? "Huonekasvi raportoi arveluttavan matalia kapasitanssiarvoja, tarkista paristot?" : "Huonekasvi tarvitsee vettä.")
+            + "\nMitattu kapasitanssiarvo: " + value.toString()
 
         const alert_data = JSON.stringify([{
             "id": Math.floor(Math.random() * 100) + 1,
             "eventType": "SoilMoistureAlertEvent",
-            "subject": "Kasvi tarvitsee vettä", // The plant needs water.
+            "subject": "Huonekasvi tarvitsee huomiota",
             "eventTime": new Date().toISOString(),
             "data": {
-                "message": "Huonekasvi tarvitsee vettä.\nMitattu kapasitanssiarvo: " + value.toString()
+                "message": msg
             }
         }]);
 

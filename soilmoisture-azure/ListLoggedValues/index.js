@@ -23,7 +23,7 @@ function valueToMoisture(logItem) {
         330: very wet soil (just watered)
         0-1: no sensor connected
 
-    When batteries start to wear out, the values go down, eventually staying below 450.
+    When batteries start to wear out, the values go down, eventually staying below 450. Anything below 280 could be considered bad batteries.
     With a new soil that isn't very tightly packed, the values are lower also, around the following:
         600: dry air
         500: very dry soil
@@ -42,6 +42,8 @@ function valueToMoisture(logItem) {
         logItem[status] = "N/A: No sensor connected";
     } else if (logItem.value < 200) {
         logItem[status] = "N/A: Test value";
+    } else if (logItem.value < 280) {
+        logItem[status] = "N/A: Bad batteries?";
     } else if (logItem.value > 620) {
         logItem[status] = "N/A: Not in soil";
     } else if (logItem.value < 300) {
