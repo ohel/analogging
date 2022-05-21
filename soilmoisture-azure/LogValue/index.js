@@ -50,7 +50,7 @@ function alertIfDry(value, logger) {
         const capacitance_limit = process.env["CapacitanceLimit"] || 600
         const lower_limit = 280
 
-        if (value < capacitance_limit && value > lower_limit) {
+        if (value < capacitance_limit && value >= lower_limit) {
             return resolve();
         }
         logger("Value is too high or low, sending alert.");
