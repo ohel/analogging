@@ -1,11 +1,11 @@
-#include "Arduino.h"
-#include "string.h"
+#include <Arduino.h>
+#include <string.h>
+#include <ESP8266WiFi.h>
+#include <ESP8266WebServer.h>
+#include <ESP8266HTTPClient.h>
+#include "wifi_cfg.h"
 
-#include "ESP8266WiFi.h"
-#include "ESP8266WebServer.h"
-#include "ESP8266HTTPClient.h"
-
-#include "wificonfig.h"
+// const char* _APIURL = "your API URL with API key";
 #include "apiurl.h"
 
 // On D1 boards the integrated LED is inverted (on when pin is LOW).
@@ -48,9 +48,9 @@
     ESP8266WebServer _SERVER(80);
 #endif
 
-// Sensor is connected to GPIO5 (D1 on a D1 board).
+// Sensor is connected to GPIO5 (pin D1 on a D1 mini board).
 // The Capacitive Soil Moisture Sensor V1.2 takes about 5mA of power and therefore can be powered via GPIO.
-static const int _SENSOR_PIN = 5;
+static const int _SENSOR_PIN = D1;
 
 HTTPClient _CLIENT;
 

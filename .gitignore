@@ -1,4 +1,5 @@
 .pio
+compile_commands.json
 src/apiurl.h
-src/wificonfig.h
-web/*.cfg
+src/wifi_cfg.h
+src/wifi_cfg.json
